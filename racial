@@ -21,3 +21,54 @@ _ = black_white_callback.plot.bar(title = 'Callback & No Callback', alpha = 0.5)
 plt.show()
 
 print(black_white_callback)
+
+
+
+
+
+#Calculate the probability of callbacks for black sounding names 
+black = data.loc[(data['race'] == 'b'), 'call']
+bk_cb = black.sum() / len(black)
+bk_no_cb = 1 - bk_cb
+
+
+#Calculate the probability of callbacks for white sounding names
+white = data.loc[(data['race'] == 'w'), 'call']
+wt_cb = white.sum()/len(white)
+wt_no_cb= 1 - wt_cb
+
+
+#Overall sample proportion
+pool_sample = (len(white)*wt_cb + len(black)*bk_cb) / len(data) 
+
+#Standard error of callbacks for both groups
+SE = np.sqrt(pool_sample*(1-pool_sample)*(1/len(white)+1/len(black)))
+
+#Z-score
+z = (wt_cb - bk_cb)/ SE
+
+
+print('Overall sample proportion:   ', pool_sample)
+print('Standard error of callbacks: ', SE)
+print('Z-score:                     ', z)
+
+#Margin of error
+margin_error = 1.96*SE
+
+#Confidence of Interval
+CI = [(wt_cb - bk_cb) - 1.96*SE, (wt_cb - bk_cb) + 1.96*SE]
+
+#P-value
+from scipy.stats import norm
+p_values = norm.sf(abs(z))*2 #two-tailed
+
+
+print('Margin of error:         ' , margin_error)
+print('95% Confidence Interval: ' , CI)
+print('P-value:                 ' , p_values)
+
+print('Probability of callbacks for Group1:   ', bk_cb)
+print('Probability of no callback for Group1: ', bk_no_cb)
+print('\n')
+print('Probability of callbacks for Group2:   ', wt_cb)
+print('Probability of no callback for Group2: ', wt_no_cb)
